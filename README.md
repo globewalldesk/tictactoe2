@@ -1,6 +1,6 @@
 
 # Tic-Tac-Toe v.2
-Basic command-line Tic-Tac-Toe game; improved version over my original TicTacToe, with refactoring and made in OOP style.
+Basic command-line Tic-Tac-Toe game; improved version over my original [TicTacToe](https://github.com/globewalldesk/tictactoe), with refactoring and made in OOP style.
 
 ## Motivation
 
