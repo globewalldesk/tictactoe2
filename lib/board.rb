@@ -118,9 +118,9 @@ class Board
 
       # Center: Play the center.
       # puts "Trying 5"
-      # Note, no "unless skip_rule == 4" here. This is because if it's the opening
-      # move, and this rule is skipped, then the computer won't play anything.
-      move = 4 if @spaces[4].c == " " # if the center is open, move there
+      unless skip_rule == 4
+        move = 4 if @spaces[4].c == " " # if the center is open, move there
+      end
       break if move
 
       # Opposite Corner: If the opponent is in the corner, play the opposite corner.
@@ -150,7 +150,7 @@ class Board
   def determine_rule_to_skip(winnable)
     skip_rule = ""
     if winnable == 'y'
-      skip_rule = [0, 1, 2, 3, 5].sample # randomly chooses a rule to "forget"
+      skip_rule = [0, 1, 2, 3, 4, 5].sample # randomly chooses a rule to "forget"
     end
     return skip_rule
   end
