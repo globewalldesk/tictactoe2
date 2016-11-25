@@ -16,13 +16,12 @@ class Board
   end
 
   def create_triads
-    @triads = [] # array of triads, q.v.
     number_array = # array of array indexes, for building triads
       [ [0,1,2], [3,4,5], [6,7,8], [0,3,6],
         [1,4,7], [2,5,8], [0,4,8], [2,4,6] ]
-    number_array.each do |triple|
+    @triads = number_array.map do |triple| # array of triads, q.v.
       x, y, z = triple
-      @triads << Triad.new(x, y, z, @spaces)
+      Triad.new(x, y, z, @spaces)
     end
   end
 
@@ -75,12 +74,13 @@ class Board
       # each "triad" is a triad object
       triad.index.keys.each do |i|
         if @spaces[i].c == token
+          # count up instances of this token seen within a triad
           token_count += 1
           collected_spaces << @spaces[i]
         end
       end
+      # mark "winner" attribute of each space true if triad is a winner
       if token_count == 3
-        # marks "winner" attribute of each space true if triad is a winner
         collected_spaces.each { |space| space.winner = true}
       end
     end
@@ -174,7 +174,7 @@ class Board
         if space.c == " "
           # incrementing not necessary for spotting an empty; we just need one
           empty_spotted = true
-          empty = space.i # assign the index to that of the current space
+          empty = space.i # assign the "empty" index to that of the current space
         end
         # The essential logic: if you spot an empty space in a triad, along with
         # two computer tokens, then add the empty space to the array of groovies!
@@ -350,7 +350,7 @@ end
 
 #===============================================================================
 
-# Triads are three spaces that, if all X's or all O's, represent a winning state
+# Triads are three Spaces that, if all X's or all O's, represent a winning state
 # for the board. There are eight triads. Special methods are used to check
 # things about triads for the AI & determining a winner. The "index" attribute
 # is a hash, with keys being indexes and values being corresponding space objects.
