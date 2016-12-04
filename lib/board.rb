@@ -93,53 +93,38 @@ class Board
     skip_rule = determine_rule_to_skip(winnable)
     puts "The computer moved:"
 
-    # Test each set of conditions, until a move is found
+    # Determine what move to make; false to begin with
     move = false
-    1.times do
+
+    # Initialize array of procs for each step of algorithm
+    rules = [
       # Win: If you have two in a row, play the third to get three in a row.
-      # puts "Trying 1"
-      move, length = are_there_two_tokens_in_a_row(@ctoken) unless skip_rule == 0
-      break if move # skip to end if move is found
-
+      Proc.new { are_there_two_tokens_in_a_row(@ctoken) },
       # Block: If the opponent has two in a row, play the third to block them.
-      # puts "Trying 2"
-      move, length = are_there_two_tokens_in_a_row(@ptoken) unless skip_rule == 1
-      break if move
-
+      Proc.new { are_there_two_tokens_in_a_row(@ptoken) },
       # Fork: Create an opportunity where you can win in two ways (a fork).
-      # puts "Trying 3"
-      move = discover_fork(@ctoken) unless skip_rule == 2
-      break if move
-
+      Proc.new { discover_fork(@ctoken) },
       # Block Opponent's Fork: If opponent can create fork, block that fork.
-      # puts "Trying 4"
-      move = discover_fork(@ptoken) unless skip_rule == 3
-      break if move
-
+      Proc.new { discover_fork(@ctoken) },
       # Center: Play the center.
-      # puts "Trying 5"
-      unless skip_rule == 4
-        move = 4 if @spaces[4].c == " " # if the center is open, move there
-      end
-      break if move
-
+      Proc.new {
+        unless skip_rule == 4
+          move = 4 if @spaces[4].c == " " # if the center is open, move there
+        end
+      },
       # Opposite Corner: If the opponent is in the corner, play the opposite corner.
-      # puts "Trying 6"
-      move = try_opposite_corner unless skip_rule == 5
-      break if move
-
+      Proc.new { try_opposite_corner },
       # Empty Corner: Play an empty corner.
-      # puts "Trying 7"
-      move = try_empty_corner
-      break if move
-
+      Proc.new { try_empty_corner },
       # Empty Side: Play an empty side.
-      # puts "Trying 8"
-      move = play_empty_side
+      Proc.new { play_empty_side }
+    ]
 
-      # If move is still false, game is over!
-
-    end # of "do" block
+    # Iterates over rule procs, and breaks out of iteration when move != false
+    (0..7).each do |rule_index|
+      move, length = rules[rule_index].call unless skip_rule == rule_index
+      break if move
+    end
 
     # Make the change to @spaces; this edits the individual space and hence also
     # the triads and the board, which use it.
