@@ -96,31 +96,36 @@ class Board
     # Determine what move to make; false to begin with
     move = false
 
-    # Initialize array of procs for each step of algorithm
-    rules = [
+    # Initialize array of lambdas for each step of algorithm
+    skippable_rules = [
       # Win: If you have two in a row, play the third to get three in a row.
-      Proc.new { are_there_two_tokens_in_a_row(@ctoken) },
+      -> { are_there_two_tokens_in_a_row(@ctoken) },
       # Block: If the opponent has two in a row, play the third to block them.
-      Proc.new { are_there_two_tokens_in_a_row(@ptoken) },
+      -> { are_there_two_tokens_in_a_row(@ptoken) },
       # Fork: Create an opportunity where you can win in two ways (a fork).
-      Proc.new { discover_fork(@ctoken) },
+      -> { discover_fork(@ctoken) },
       # Block Opponent's Fork: If opponent can create fork, block that fork.
-      Proc.new { discover_fork(@ctoken) },
+      -> { discover_fork(@ctoken) },
       # Center: Play the center.
-      Proc.new {
+      -> {
         unless skip_rule == 4
           move = 4 if @spaces[4].c == " " # if the center is open, move there
         end
       },
       # Opposite Corner: If the opponent is in the corner, play the opposite corner.
-      Proc.new { try_opposite_corner },
-      # Empty Corner: Play an empty corner.
-      Proc.new { try_empty_corner },
-      # Empty Side: Play an empty side.
-      Proc.new { play_empty_side }
+      -> { try_opposite_corner }
     ]
 
-    # Iterates over rule procs, and breaks out of iteration when move != false
+    unskippable_rules = [
+      # Empty Corner: Play an empty corner.
+      -> { try_empty_corner },
+      # Empty Side: Play an empty side.
+      -> { play_empty_side }
+    ]
+
+    rules = (skippable_rules - Array(skip_rule)) + unskippable_rules
+
+    # Iterates over rule lambdas, and breaks out of iteration when move != false
     (0..7).each do |rule_index|
       move, length = rules[rule_index].call unless skip_rule == rule_index
       break if move
