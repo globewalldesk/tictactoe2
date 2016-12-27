@@ -105,7 +105,7 @@ class Board
       # Fork: Create an opportunity where you can win in two ways (a fork).
       -> { discover_fork(@ctoken) },
       # Block Opponent's Fork: If opponent can create fork, block that fork.
-      -> { discover_fork(@ctoken) },
+      -> { discover_fork(@ptoken) },
       # Center: Play the center.
       -> {
         unless skip_rule == 4
